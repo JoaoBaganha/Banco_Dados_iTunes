@@ -41,40 +41,54 @@ SUM(total) AS invoice_total_month
 FROM invoice
 WHERE EXTRACT(MONTH FROM invoice_date) % 2 != 0
 GROUP BY EXTRACT(MONTH FROM invoice_date)
-ORDER BY invoice_month ASC
+ORDER BY invoice_month ASC;
 
 --8. Listar as faixas (tracks) com a maior duração em milissegundos para cada álbum (album). Informe se a duracao é par ou não. 
-
-
-
-
+SELECT album.title as album_title,
+MAX(track.milliseconds) AS album_longest_track
+FROM album
+JOIN track ON album.album_id = track.album_id
+GROUP BY album.title;
 
 
 --9. Mostre os três artistas que mais venderam, que não tenham a letra "e".
-
-
+SELECT artist.name AS artist,
+SUM (invoice.total) AS revenue_artist
+FROM artist
+JOIN album ON artist.artist_id = album.artist_id
+JOIN track ON album.album_id = track.album_id
+JOIN invoice_line ON track.track_id = invoice_line.track_id
+JOIN invoice ON invoice_line.invoice_id = invoice.invoice_id
+WHERE artist.name NOT LIKE '%e%'
+GROUP BY artist.name
+ORDER BY revenue_artist DESC
+LIMIT 3;
 
 
 --10.Obter a quantidade de faixas (tracks) por gênero (genre) e o preço médio (unit_price) das faixas em cada gênero.
-
+SELECT genre.name AS genre_name,  
+COUNT(track.track_id) AS track_count,
+AVG (track.unit_price) AS avg_price
+FROM track
+JOIN genre ON track.genre_id = genre.genre_id
+GROUP BY genre.name;
 
 --11. Calcular a média do valor total das invoices por cidade (city) dos clientes. 
-
+SELECT invoice.billing_city,
+AVG(total) AS avg_invoice_city
+FROM invoice
+GROUP BY invoice.billing_city;
 
 --12 Calcular o total de vendas (total) por cada cliente (customer), exibindo o nome do cliente e o valor total. Traga apenas os resultados acima da média. (Pesquisem sobre HAVING ou Subquery)
 
 
 --13. Calcular o tempo total (milissegundos) das faixas (tracks) em cada álbum (album).
-SELECT * FROM track
-SELECT * FROM album
-
 SELECT album.title as album_title,
 SUM(track.milliseconds) AS album_total_time
 FROM album
 JOIN track ON album.album_id = track.album_id
 GROUP BY album.title
 ORDER BY album_total_time ASC;
-
 
 --14. Listar o nome do álbum, o nome da faixa, e o preço total das faixas (track * quantity) vendidas em cada invoice. Mostre apenas os álbuns que foram gravados ao vivo.
 
@@ -96,6 +110,4 @@ JOIN invoice ON invoice_line.invoice_id = invoice.invoice_id
 WHERE artist.name NOT LIKE '%o%'
 GROUP BY artist.name
 ORDER BY revenue_artist DESC
-LIMIT 3
-
-select * from artist
+LIMIT 3;
